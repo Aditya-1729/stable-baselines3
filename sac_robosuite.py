@@ -8,7 +8,7 @@ from robosuite.controllers import load_controller_config
 from omegaconf import DictConfig, OmegaConf
 from hydra import compose, initialize_config_dir
 
-initialize_config_dir(version_base=None, config_dir="/media/aditya/OS/Users/Aditya/Documents/Uni_Studies/Thesis/master_thesis/git_clean/robosuite/robosuite/main/config")
+initialize_config_dir(version_base=None, config_dir="/hpcwork/ru745256/master_thesis/30_6/robosuite/robosuite/main/config")
 cfg = compose(config_name="main")
 
 env = RL_agent_2(suite.make(env_name=cfg.env.name,
@@ -25,14 +25,11 @@ eval_env = env
 # new_logger = configure(["stdout", "csv", "tensorboard"])
 model = SAC(env=env, **cfg.algorithm.model)
 
-# eval_callback = EvalCallback(eval_env, best_model_save_path='./logs/',
-#                              log_path='./logs/', eval_freq=10000, 
-#                              deterministic=True, render=False, n_eval_episodes=5)
-
+eval_callback = EvalCallback(eval_env=eval_env, **cfg.algorithm.eval)
 
 
 # # # model.set_logger(new_logger)
-model.learn(**cfg.algorithm.learn)
+model.learn(**cfg.algorithm.learn, callback=eval_callback)
 # model.save("sac_robosuite_2")
 
 # del model # remove to demonstrate saving and loading
