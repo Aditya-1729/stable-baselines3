@@ -6,6 +6,7 @@ from stable_baselines3.common.logger import configure
 from stable_baselines3.common.callbacks import EvalCallback
 from robosuite.controllers import load_controller_config
 from omegaconf import DictConfig, OmegaConf
+import hydra
 from hydra import compose, initialize_config_dir
 
 initialize_config_dir(version_base=None, config_dir="/hpcwork/ru745256/master_thesis/30_6/robosuite/robosuite/main/config")
@@ -35,7 +36,7 @@ model.learn(**cfg.algorithm.learn, callback=eval_callback)
 # del model # remove to demonstrate saving and loading
 
 
-# model = SAC.load("sac_robosuite")
+# model = SAC.load("/hpcwork/ru745256/master_thesis/30_6/robosuite/logs/gpu/best_model.zip")
 # obs,_ = env.reset()
 # for i in range(100):
 #     action, _states = model.predict(obs, deterministic=True)

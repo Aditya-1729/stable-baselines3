@@ -1,13 +1,13 @@
 #!/usr/local_rwth/bin/zsh
 
-#SBATCH --job-name=sac_pos_limit
+#SBATCH --job-name=sac_1500
 #SBATCH --output=/hpcwork/ru745256/master_thesis/30_6/robosuite/stable-baselines3/task_out.%J.out
 #SBATCH --error=/hpcwork/ru745256/master_thesis/30_6/robosuite/stable-baselines3/error_task_out.%J.out
 #SBATCH --nodes=1 # request one nodes
 #SBATCH --cpus-per-task=16  # ask for 2 cpus per task
 #SBATCH --mem=64G
-#SBATCH --time=24:00:00
-
+#SBATCH --account=rwth1272
+#SBATCH --time=15:00:00
 # request one gpu per node 
 #SBATCH --gres=gpu:volta:1
 
