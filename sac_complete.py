@@ -4,6 +4,7 @@ from robosuite.wrappers import RL_agent_2
 from robosuite.wrappers import Via_points_sweep
 from robosuite.wrappers import Via_points_full
 from robosuite.wrappers import Via_points
+from robosuite.wrappers import GymWrapper
 from stable_baselines3 import SAC
 from stable_baselines3.common.logger import configure
 from stable_baselines3.common.callbacks import EvalCallback
@@ -15,14 +16,13 @@ from hydra import compose, initialize_config_dir
 from wandb.integration.sb3 import WandbCallback
 import datetime
 
-
 initialize_config_dir(
     version_base=None, config_dir="/hpcwork/thes1499/10_8/robosuite/robosuite/main/config")
 cfg = compose(config_name="main")
 
 run = wandb.init(
     project="sb3",
-    name="RL_full_s42",
+    name="1500_sweep",
     config=cfg,
     sync_tensorboard=True,  # auto-upload sb3's tensorboard metrics
     monitor_gym=False,  # auto-upload the videos of agents playing the game
@@ -33,7 +33,7 @@ env = Via_points_full(suite.make(env_name=cfg.env.name,
                             **cfg.env.specs,
                             task_config=OmegaConf.to_container(
                                 cfg.task_config),
-                            controller_configs=OmegaConf.to_container(cfg.controller)), cfg
+                            controller_configs=OmegaConf.to_container(cfg.controller))
                  )
 
 
@@ -46,8 +46,8 @@ model = SAC(env=env, **cfg.algorithm.model)
 
 # eval_callback = EvalCallback(eval_env=eval_env, **cfg.algorithm.eval)
 # wandb_callback = WandbCallback(verbose=2,)
-callbacks = [EvalCallback(eval_env=eval_env, best_model_save_path = f'./logs/hpc_1500/full/{datetime.datetime.now().strftime("%d_%m/%H%M%S")}',\
-             **cfg.algorithm.eval), WandbCallback(verbose=2)]
+callbacks = [EvalCallback(eval_env=eval_env, best_model_save_path = f'./logs/hpc_1500/complete/{datetime.datetime.now().strftime("%d_%m/%H%M%S")}',\
+             **cfg.algorithm.eval), WandbCallback(verbose=2) ]
 # # # model.set_logger(new_logger)
 
 model.learn(**cfg.algorithm.learn, callback=callbacks)

@@ -113,7 +113,7 @@ class SAC(OffPolicyAlgorithm):
         tensorboard_log: Optional[str] = None,
         policy_kwargs: Optional[Dict[str, Any]] = None,
         verbose: int = 0,
-        seed: Optional[int] = None,
+        seed: Optional[int] = 142,
         device: Union[th.device, str] = "auto",
         _init_setup_model: bool = True,
     ):

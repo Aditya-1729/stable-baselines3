@@ -99,7 +99,7 @@ class OffPolicyAlgorithm(BaseAlgorithm):
         verbose: int = 0,
         device: Union[th.device, str] = "auto",
         support_multi_env: bool = False,
-        monitor_wrapper: bool = True,
+        monitor_wrapper: bool = False,
         seed: Optional[int] = None,
         use_sde: bool = False,
         sde_sample_freq: int = -1,
