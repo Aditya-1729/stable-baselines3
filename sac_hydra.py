@@ -2,7 +2,7 @@ import gymnasium as gym
 import robosuite as suite
 from stable_baselines3 import SAC
 from stable_baselines3.common.callbacks import EvalCallback
-from robosuite.wrappers import RL_agent_2
+from robosuite.wrappers import GymWrapper
 from robosuite.wrappers import Via_points_sweep
 from robosuite.wrappers import Via_points_full
 from robosuite.wrappers import Via_points
@@ -31,6 +31,8 @@ def main(cfg: DictConfig):
                                     cfg.task_config),
                                 controller_configs=OmegaConf.to_container(cfg.controller))
                     
+    if cfg.controller.agent_config==0:
+        wrapped_env = GymWrapper(base_env)    
     if cfg.controller.agent_config==1:
         wrapped_env = Via_points(base_env,cfg)
     if cfg.controller.agent_config==2:
