@@ -32,7 +32,8 @@ def main(cfg: DictConfig):
                                 controller_configs=OmegaConf.to_container(cfg.controller))
                     
     if cfg.controller.agent_config==0:
-        wrapped_env = GymWrapper(base_env)    
+        wrapped_env = GymWrapper(base_env)
+        # cfg.controller.control_delta=True    
     if cfg.controller.agent_config==1:
         wrapped_env = Via_points(base_env,cfg)
     if cfg.controller.agent_config==2:
