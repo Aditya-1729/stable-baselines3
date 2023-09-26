@@ -9,6 +9,7 @@ from robosuite.wrappers import Via_points
 from omegaconf import DictConfig, OmegaConf
 import hydra
 import wandb
+from Callbacks.test import PerformanceLog
 
 from wandb.integration.sb3 import WandbCallback
 import datetime
@@ -45,7 +46,7 @@ def main(cfg: DictConfig):
 
     model = SAC(env=wrapped_env, **cfg.algorithm.model)
 
-    callbacks = [EvalCallback(eval_env=eval_env, **cfg.algorithm.eval)\
+    callbacks = [PerformanceLog(eval_env=eval_env, **cfg.algorithm.eval, cfg=cfg)\
                 , WandbCallback(verbose=2)]
 
     model.learn(**cfg.algorithm.learn, callback=callbacks)

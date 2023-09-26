@@ -2,7 +2,7 @@ import gymnasium as gym
 from stable_baselines3.common.callbacks import EvalCallback
 import numpy as np
 import robosuite as suite
-from robosuite.wrappers import PolishingGymWrapper   
+from robosuite.wrappers import PolishingGymWrapper, PolishingWrapper   
 from Residual_RL.src.policies import ResidualSAC
 from omegaconf import DictConfig, OmegaConf
 import hydra
@@ -24,12 +24,17 @@ def main(cfg: DictConfig):
             save_code=False,  # optional
         )
 
-    env=PolishingGymWrapper(suite.make(env_name=cfg.env.name,
+    # env=PolishingGymWrapper(suite.make(env_name=cfg.env.name,
+    #                         **cfg.env.specs,
+    #                         task_config=OmegaConf.to_container(
+    #                             cfg.task_config),
+    #                         controller_configs=OmegaConf.to_container(cfg.controller)))    
+
+    env=PolishingWrapper(suite.make(env_name=cfg.env.name,
                             **cfg.env.specs,
                             task_config=OmegaConf.to_container(
                                 cfg.task_config),
                             controller_configs=OmegaConf.to_container(cfg.controller)))    
-
 
 
     model = ResidualSAC(env=env,**cfg.algorithm.model)

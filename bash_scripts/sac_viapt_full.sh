@@ -6,7 +6,8 @@
 #SBATCH --nodes=1 # request one nodes
 #SBATCH --cpus-per-task=16  # ask for 2 cpus per task
 #SBATCH --mem=64G
-#SBATCH --time=12:00:00
+#SBATCH --account=rwth1272
+#SBATCH --time=5:00:00
 # request one gpu per node 
 #SBATCH --gres=gpu:volta:1
 
@@ -30,4 +31,4 @@ export MUJOCO_GL='disabled'
 #export DISPLAY=guilinuxbox:0.0
 
 
-python /hpcwork/thes1499/10_8/robosuite/stable-baselines3/sac_hydra.py task_config.reward_mode=2 seed=5
+python /hpcwork/thes1499/10_8/robosuite/stable-baselines3/sac_hydra.py task_config.reward_mode=2 seed=5 controller.agent_config=0
