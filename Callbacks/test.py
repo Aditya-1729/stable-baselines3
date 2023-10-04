@@ -320,19 +320,21 @@ class PerformanceLog(EvalCallback):
         return continue_training
 
 
-# class A:
-#     def __init__ (self, var_a=5):
-#         self.var_a = var_a
-#         # self.var_b = var_b
-    
-#     def cello(self):
-#         return(print(f'{self.var_b +self.var_a}'))
-    
 
-# class B(A):
-#     def __init__ (self, var_b):
-#         self.var_b=var_b
-#         super().__init__()
-#     pass
-
-# b = B(10).cello()
+class Training_info(BaseCallback):
+    def __init__(self,verbose=0):
+        self.collisions=0
+        self.f_excess=0
+        self.q_limits=0
+        super().__init__(verbose)
+    def _on_step(self) -> bool:
+        infos = self.locals["infos"][0]
+        print(infos)
+        self.collisions += infos["colls"]
+        self.f_excess += infos["f_excess"]
+        self.q_limits += infos["lims"]
+        # self.q_limits += 1  
+        self.logger.record("train/collisions", self.collisions)
+        self.logger.record("train/f_excess", self.f_excess)
+        self.logger.record("train/joint_limits", self.q_limits)
+        return True

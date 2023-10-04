@@ -8,11 +8,11 @@ from omegaconf import DictConfig, OmegaConf
 import hydra
 import os
 from omegaconf import DictConfig, OmegaConf
-from Callbacks.test import PerformanceLog
+from Callbacks.test import PerformanceLog, Training_info
 import wandb
 
 
-@hydra.main(version_base=None, config_path="/hpcwork/thes1499/10_8/robosuite/robosuite/main/config/", config_name="main")
+@hydra.main(version_base=None, config_path="/media/aditya/OS/Users/Aditya/Documents/Uni_Studies/Thesis/master_thesis/21_9/robosuite/robosuite/main/config/", config_name="main")
 def main(cfg: DictConfig):
     if cfg.use_wandb:
         run = wandb.init(
@@ -39,7 +39,7 @@ def main(cfg: DictConfig):
 
     model = ResidualSAC(env=env,**cfg.algorithm.model)
 
-    callbacks = [PerformanceLog(eval_env=env, **cfg.algorithm.eval, cfg=cfg)]
+    callbacks = [PerformanceLog(eval_env=env, **cfg.algorithm.eval, cfg=cfg), Training_info()]
     
     model.learn(**cfg.algorithm.learn, callback=callbacks)
     
