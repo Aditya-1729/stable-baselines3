@@ -106,11 +106,11 @@ class Actor(BasePolicy):
         #     self.log_std.bias.fill_(0)
             # self.log_std.weight*=0.001
             # self.log_std.bias*=0.001
-        with th.no_grad():
+        # with th.no_grad():
         #     self.mu.weight.fill_(0)
         #     self.mu.bias.fill_(0)
-            self.mu.weight*=0.001
-            self.mu.bias*=0.001
+            # self.mu.weight*=0.001
+            # self.mu.bias*=0.001
     def _get_constructor_parameters(self) -> Dict[str, Any]:
         data = super()._get_constructor_parameters()
 
