@@ -10,11 +10,12 @@ from omegaconf import DictConfig, OmegaConf
 import hydra
 import wandb
 from Callbacks.test import PerformanceLog, Training_info
+from stable_baselines3.common.logger import configure
 
 from wandb.integration.sb3 import WandbCallback
 import datetime
 
-@hydra.main(version_base=None, config_path="/media/aditya/OS/Users/Aditya/Documents/Uni_Studies/Thesis/master_thesis/21_9/robosuite/robosuite/main/config/", config_name="main")
+@hydra.main(version_base=None, config_path="/work/thes1499/2_10/robosuite/robosuite/main/config/", config_name="main")
 def main(cfg: DictConfig):
     if cfg.use_wandb:
         run = wandb.init(
@@ -45,10 +46,14 @@ def main(cfg: DictConfig):
     eval_env = wrapped_env
 
     model = SAC(env=wrapped_env, **cfg.algorithm.model)
+    tmp_path = cfg.dir
+    # set up logger
+    new_logger = configure(tmp_path, ["stdout", "csv", "tensorboard"])
 
-
+    model.set_logger(new_logger)
+    
     callbacks = [PerformanceLog(eval_env=eval_env, **cfg.algorithm.eval, cfg=cfg)\
-                ,Training_info()]
+                , Training_info()]
 
     model.learn(**cfg.algorithm.learn, callback=callbacks)
 
