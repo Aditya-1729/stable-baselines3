@@ -1,8 +1,8 @@
 import gymnasium as gym
 from stable_baselines3.common.callbacks import EvalCallback
 import numpy as np
-from robosuite.time_curriculum.src.tbc.tbc import get_tbc_algorithm, Guide_policy
-from Callbacks.test import PerformanceLog
+from time_curriculum.src.tbc.tbc import get_tbc_algorithm, Guide_policy
+from Callbacks.test import PerformanceLog, Training_info
 import robosuite as suite
 from robosuite.wrappers import Via_points_full, PolishingGymWrapper, CurriculumWrapper
 from stable_baselines3 import SAC
@@ -11,15 +11,24 @@ import hydra
 from hydra import compose, initialize_config_dir
 import os
 from termcolor import colored
+import wandb
+from wandb.integration.sb3 import WandbCallback
+from typing import Callable
+from stable_baselines3.common.logger import configure
 
 
-scriptDir = os.path.dirname(os.path.realpath(__file__))
-# @hydra.main(version_base=None, \
-#             config_path=os.path.abspath(os.path.join(os.path.dirname( __file__ ), '../..', 'robosuite/main/config')),\
-#             config_name="main")
+
 @hydra.main(version_base=None, config_path="/hpcwork/thes1499/10_8/robosuite/robosuite/main/config/", config_name="main")
 def main(cfg: DictConfig):
-    
+
+    run = wandb.init(
+        config=cfg,
+        project=cfg.project,
+        name=cfg.experiment,
+        sync_tensorboard=True,  # auto-upload sb3's tensorboard metrics
+        monitor_gym=False,  # auto-upload the videos of agents playing the game
+        save_code=False,  # optional
+        )    
     env=CurriculumWrapper(suite.make(env_name=cfg.env.name,
                             **cfg.env.specs,
                             task_config=OmegaConf.to_container(
@@ -37,7 +46,14 @@ def main(cfg: DictConfig):
     print('Complete handover in', colored(f'{int(freq*n)}', 'green'), ' time steps with freq:', colored(f'{int(freq)}', 'yellow'))
     print('# Curriculum steps: ', colored(f'{n}','green'))
     print('Curriculum:', colored(f'{np.arange(max_horizon, -1, -max_horizon // n)}','green'))
-    
+
+# Set new logger
+    tmp_path = cfg.dir
+    # set up logger
+    new_logger = configure(tmp_path, ["stdout", "csv", "tensorboard"])
+
+    model.set_logger(new_logger)
+
     model = get_tbc_algorithm(SAC)(
         curr_freq=freq,
         env=env,
@@ -50,6 +66,13 @@ def main(cfg: DictConfig):
         ),
     )
     
+    # Set new logger
+    tmp_path = cfg.dir
+    # set up logger
+    new_logger = configure(tmp_path, ["stdout", "csv", "tensorboard"])
+
+    model.set_logger(new_logger)
+
     callbacks = [PerformanceLog(eval_env=env, **cfg.algorithm.eval,cfg=cfg)]
     
     model.learn(**cfg.algorithm.learn, callback=callbacks)

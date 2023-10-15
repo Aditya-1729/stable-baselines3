@@ -7,7 +7,7 @@
 #SBATCH --cpus-per-task=8  # ask for 2 cpus per task
 #SBATCH --mem=64G
 #SBATCH --account=rwth1272
-#SBATCH --time=6:00:00
+#SBATCH --time=20:00:00
 #SBATCH --gres=gpu:volta:1
 
 # request one gpu per node 

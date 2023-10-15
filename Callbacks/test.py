@@ -276,7 +276,7 @@ class PerformanceLog(EvalCallback):
 
             mean_reward, std_reward = np.mean(episode_rewards), np.std(episode_rewards)
             mean_ep_length, std_ep_length = np.mean(episode_lengths), np.std(episode_lengths)
-            mean_ep_force, std_ep_force = np.mean(episode_forces), np.std(episode_forces)
+            mean_ep_force, std_ep_force, max_ep_force, min_ep_force = np.mean(episode_forces), np.std(episode_forces) , np.max(episode_forces), np.min(episode_forces)
             mean_ep_deviation, std_ep_deviation = np.mean(episode_deviations), np.std(episode_deviations)
             ep_last_via_point,ep_total_via_points = episode_wiped[-1], max(episode_wiped) 
             self.last_mean_reward = mean_reward
@@ -289,9 +289,12 @@ class PerformanceLog(EvalCallback):
             self.logger.record("eval/mean_ep_length", mean_ep_length)
             self.logger.record("eval/mean_ep_force", mean_ep_force)
             self.logger.record("eval/std_ep_force", std_ep_force)
+            self.logger.record("eval/max_ep_force", max_ep_force)
+            self.logger.record("eval/min_ep_force", min_ep_force)
             self.logger.record("eval/mean_ep_x_dev", mean_ep_deviation)
             self.logger.record("eval/std_ep_x_dev", std_ep_deviation)
             self.logger.record("eval/via_points_wiped", ep_total_via_points)
+
 
             if len(self._is_success_buffer) > 0:
                 success_rate = np.mean(self._is_success_buffer)
@@ -319,20 +322,21 @@ class PerformanceLog(EvalCallback):
 
         return continue_training
 
+class Training_info(BaseCallback):
+    def __init__(self,verbose=0):
+        self.collisions=0
+        self.f_excess=0
+        self.q_limits=0
+        super().__init__(verbose)
+    def _on_step(self) -> bool:
+        infos = self.locals["infos"][0]
+        # print(infos)
+        self.collisions += infos["colls"]
+        self.f_excess += infos["f_excess"]
+        self.q_limits += infos["lims"]
+        # self.q_limits += 1  
+        self.logger.record("train/collisions", self.collisions)
+        self.logger.record("train/f_excess", self.f_excess)
+        self.logger.record("train/joint_limits", self.q_limits)
+        return True
 
-# class A:
-#     def __init__ (self, var_a=5):
-#         self.var_a = var_a
-#         # self.var_b = var_b
-    
-#     def cello(self):
-#         return(print(f'{self.var_b +self.var_a}'))
-    
-
-# class B(A):
-#     def __init__ (self, var_b):
-#         self.var_b=var_b
-#         super().__init__()
-#     pass
-
-# b = B(10).cello()

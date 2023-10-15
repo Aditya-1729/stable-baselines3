@@ -5,6 +5,7 @@ from stable_baselines3.common.policies import BasePolicy
 from stable_baselines3.common.type_aliases import MaybeCallback
 from stable_baselines3.common.callbacks import EvalCallback, CallbackList, BaseCallback, EveryNTimesteps
 from stable_baselines3.common.utils import safe_mean
+from Callbacks.test import PerformanceLog, Training_info
 import sys
 import time
 from hydra import initialize_config_dir, compose
@@ -146,6 +147,7 @@ def get_tbc_algorithm(Algorithm: BaseAlgorithm):
             callback = CallbackList(
                 [
                     callback,
+                    Training_info(),
                     curriculum_callback,
                 ]
             )
