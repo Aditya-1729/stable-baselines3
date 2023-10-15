@@ -9,22 +9,23 @@ from robosuite.wrappers import Via_points
 from omegaconf import DictConfig, OmegaConf
 import hydra
 import wandb
-from Callbacks.test import PerformanceLog
+from Callbacks.test import PerformanceLog, Training_info
+from stable_baselines3.common.logger import configure
 
 from wandb.integration.sb3 import WandbCallback
 import datetime
 
-@hydra.main(version_base=None, config_path="/hpcwork/thes1499/10_8/robosuite/robosuite/main/config/", config_name="main")
+@hydra.main(version_base=None, config_path="/work/thes1499/2_10/robosuite/robosuite/main/config/", config_name="main")
 def main(cfg: DictConfig):
-
-    run = wandb.init(
-        config=cfg,
-        project=cfg.project,
-        name=cfg.experiment,
-        sync_tensorboard=True,  # auto-upload sb3's tensorboard metrics
-        monitor_gym=False,  # auto-upload the videos of agents playing the game
-        save_code=False,  # optional
-    )
+    if cfg.use_wandb:
+        run = wandb.init(
+            config=cfg,
+            project=cfg.project,
+            name=cfg.experiment,
+            sync_tensorboard=True,  # auto-upload sb3's tensorboard metrics
+            monitor_gym=False,  # auto-upload the videos of agents playing the game
+            save_code=False,  # optional
+        )
 
     base_env = suite.make(env_name=cfg.env.name,
                                 **cfg.env.specs,
@@ -45,9 +46,14 @@ def main(cfg: DictConfig):
     eval_env = wrapped_env
 
     model = SAC(env=wrapped_env, **cfg.algorithm.model)
+    tmp_path = cfg.dir
+    # set up logger
+    new_logger = configure(tmp_path, ["stdout", "csv", "tensorboard"])
 
+    model.set_logger(new_logger)
+    
     callbacks = [PerformanceLog(eval_env=eval_env, **cfg.algorithm.eval, cfg=cfg)\
-                , WandbCallback(verbose=2)]
+                , Training_info()]
 
     model.learn(**cfg.algorithm.learn, callback=callbacks)
 

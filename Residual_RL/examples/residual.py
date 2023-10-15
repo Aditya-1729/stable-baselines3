@@ -9,11 +9,12 @@ import hydra
 import os
 from omegaconf import DictConfig, OmegaConf
 from Callbacks.test import PerformanceLog, Training_info
+from Callbacks.test import PerformanceLog, Training_info
 import wandb
 from stable_baselines3.common.logger import configure
 
 
-@hydra.main(version_base=None, config_path="/hpcwork/thes1499/10_8/robosuite/robosuite/main/config/", config_name="main")
+@hydra.main(version_base=None, config_path="/media/aditya/OS/Users/Aditya/Documents/Uni_Studies/Thesis/master_thesis/21_9/robosuite/robosuite/main/config/", config_name="main")
 def main(cfg: DictConfig):
     if cfg.use_wandb:
         run = wandb.init(

@@ -277,6 +277,7 @@ class PerformanceLog(EvalCallback):
             mean_reward, std_reward = np.mean(episode_rewards), np.std(episode_rewards)
             mean_ep_length, std_ep_length = np.mean(episode_lengths), np.std(episode_lengths)
             mean_ep_force, std_ep_force, max_ep_force, min_ep_force = np.mean(episode_forces), np.std(episode_forces) , np.max(episode_forces), np.min(episode_forces)
+            mean_ep_force, std_ep_force, max_ep_force, min_ep_force = np.mean(episode_forces), np.std(episode_forces) , np.max(episode_forces), np.min(episode_forces)
             mean_ep_deviation, std_ep_deviation = np.mean(episode_deviations), np.std(episode_deviations)
             ep_last_via_point,ep_total_via_points = episode_wiped[-1], max(episode_wiped) 
             self.last_mean_reward = mean_reward
@@ -291,9 +292,12 @@ class PerformanceLog(EvalCallback):
             self.logger.record("eval/std_ep_force", std_ep_force)
             self.logger.record("eval/max_ep_force", max_ep_force)
             self.logger.record("eval/min_ep_force", min_ep_force)
+            self.logger.record("eval/max_ep_force", max_ep_force)
+            self.logger.record("eval/min_ep_force", min_ep_force)
             self.logger.record("eval/mean_ep_x_dev", mean_ep_deviation)
             self.logger.record("eval/std_ep_x_dev", std_ep_deviation)
             self.logger.record("eval/via_points_wiped", ep_total_via_points)
+
 
 
             if len(self._is_success_buffer) > 0:
