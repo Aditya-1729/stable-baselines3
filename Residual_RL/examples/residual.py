@@ -1,20 +1,16 @@
-import gymnasium as gym
-from stable_baselines3.common.callbacks import EvalCallback
-import numpy as np
 import robosuite as suite
-from robosuite.wrappers import PolishingWrapper   
+from robosuite.wrappers import ResidualWrapper   
 from Residual_RL.src.policies import ResidualSAC
 from omegaconf import DictConfig, OmegaConf
 import hydra
 import os
 from omegaconf import DictConfig, OmegaConf
 from Callbacks.test import PerformanceLog, Training_info
-from Callbacks.test import PerformanceLog, Training_info
 import wandb
 from stable_baselines3.common.logger import configure
 
 
-@hydra.main(version_base=None, config_path="/media/aditya/OS/Users/Aditya/Documents/Uni_Studies/Thesis/master_thesis/21_9/robosuite/robosuite/main/config/", config_name="main")
+@hydra.main(version_base=None, config_path="/work/thes1499/19_10/robosuite/robosuite/main/config/", config_name="main")
 def main(cfg: DictConfig):
     if cfg.use_wandb:
         run = wandb.init(
@@ -26,8 +22,7 @@ def main(cfg: DictConfig):
             save_code=False,  # optional
         )
 
-
-    env=PolishingWrapper(suite.make(env_name=cfg.env.name,
+    env=ResidualWrapper(suite.make(env_name=cfg.env.name,
                             **cfg.env.specs,
                             task_config=OmegaConf.to_container(
                                 cfg.task_config),
@@ -38,8 +33,8 @@ def main(cfg: DictConfig):
     # Set new logger
     tmp_path = cfg.dir
     new_logger = configure(tmp_path, ["stdout", "csv", "tensorboard"])
-
     model.set_logger(new_logger)
+    
     callbacks = [PerformanceLog(eval_env=env, **cfg.algorithm.eval, cfg=cfg), Training_info()]
     
     model.learn(**cfg.algorithm.learn, callback=callbacks)

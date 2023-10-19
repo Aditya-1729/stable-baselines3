@@ -32,4 +32,4 @@ export MUJOCO_GL='disabled'
 #export DISPLAY=guilinuxbox:0.0
 
 
-python /hpcwork/thes1499/10_8/robosuite/stable-baselines3/Residual_RL/examples/residual.py task_config.reward_mode=2 seed=9 controller.agent_config=residual_2
+python /hpcwork/thes1499/10_8/robosuite/stable-baselines3/Residual_RL/examples/residual.py algorithm=sac_residual task_config.reward_mode=2 seed=9 controller.agent_config=residual_2
