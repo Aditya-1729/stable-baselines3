@@ -11,11 +11,11 @@ import hydra
 import wandb
 from Callbacks.test import PerformanceLog, Training_info
 from stable_baselines3.common.logger import configure
-
+from typing import Callable
 from wandb.integration.sb3 import WandbCallback
 import datetime
 
-@hydra.main(version_base=None, config_path="/work/thes1499/2_10/robosuite/robosuite/main/config/", config_name="main")
+@hydra.main(version_base=None, config_path="/work/thes1499/19_10/robosuite/robosuite/main/config/", config_name="main")
 def main(cfg: DictConfig):
     if cfg.use_wandb:
         run = wandb.init(
@@ -45,11 +45,31 @@ def main(cfg: DictConfig):
 
     eval_env = wrapped_env
 
-    model = SAC(env=wrapped_env, **cfg.algorithm.model)
-    tmp_path = cfg.dir
-    # set up logger
-    new_logger = configure(tmp_path, ["stdout", "csv", "tensorboard"])
+    def linear_schedule(initial_value: float) -> Callable[[float], float]:
+        """
+        Linear learning rate schedule.
 
+        :param initial_value: Initial learning rate.
+        :return: schedule that computes
+        current learning rate depending on remaining progress
+        """
+        def func(progress_remaining: float) -> float:
+            """
+            Progress will decrease from 1 (beginning) to 0.
+
+            :param progress_remaining:
+            :return: current learning rate
+            """
+            return progress_remaining * initial_value
+
+        return func
+    
+    model = SAC(env=wrapped_env, learning_rate=linear_schedule(0.0005), **cfg.algorithm.model)
+
+    
+    # set up logger
+    tmp_path = cfg.dir
+    new_logger = configure(tmp_path, ["stdout", "csv", "tensorboard"])
     model.set_logger(new_logger)
     
     callbacks = [PerformanceLog(eval_env=eval_env, **cfg.algorithm.eval, cfg=cfg)\

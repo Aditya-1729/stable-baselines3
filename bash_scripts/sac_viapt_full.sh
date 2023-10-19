@@ -1,8 +1,8 @@
 #!/usr/local_rwth/bin/zsh
 
-#SBATCH --job-name=s100
-#SBATCH --output=/work/thes1499/2_10/robosuite/stable-baselines3/task_out/task_out.%J.out
-#SBATCH --error=/work/thes1499/2_10/robosuite/stable-baselines3/error_task/error_task_out.%J.out
+#SBATCH --job-name=sac_lr100
+#SBATCH --output=/work/thes1499/19_10/robosuite/stable-baselines3/task_out/task_out.%J.out
+#SBATCH --error=/work/thes1499/19_10/robosuite/stable-baselines3/error_task/error_task_out.%J.out
 #SBATCH --nodes=1 # request one nodes
 #SBATCH --cpus-per-task=16  # ask for 2 cpus per task
 #SBATCH --mem=64G
@@ -23,12 +23,12 @@ conda activate robosuite
 
 # PYTHONPATH='/hpcwork/ru745256/master_thesis/robosuite-benchmark/rlkit':${PYTHONPATH}
 # PYTHONPATH='/hpcwork/ru745256/master_thesis/robosuite-benchmark':${PYTHONPATH}
-PYTHONPATH='/work/thes1499/2_10/robosuite':${PYTHONPATH}
-PYTHONPATH='/work/thes1499/2_10/robosuite/stable-baselines3':${PYTHONPATH}                       
+PYTHONPATH='/work/thes1499/19_10/robosuite':${PYTHONPATH}
+PYTHONPATH='/work/thes1499/19_10/robosuite/stable-baselines3':${PYTHONPATH}                       
 export PYTHONPATH
 export MUJOCO_GL='disabled'
 #export PYOPENGL_PLATFORM=osmesa
 #export DISPLAY=guilinuxbox:0.0
 
 
-python /work/thes1499/2_10/robosuite/stable-baselines3/sac_hydra.py task_config.reward_mode=2 task_config.task_complete_reward=200 controller.agent_config=0 controller.control_delta=true seed=5
+python /work/thes1499/19_10/robosuite/stable-baselines3/sac_hydra.py algorithm=sac task_config.reward_mode=2 task_config.task_complete_reward=200 controller.agent_config=0 controller.control_delta=false seed=15

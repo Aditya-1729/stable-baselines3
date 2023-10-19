@@ -39,6 +39,7 @@ def main(cfg: DictConfig):
     max_horizon = env.env.horizon
 
     # freq = cfg.algorithm.curriculum.complete_handover*cfg.algorithm.learn.total_timesteps/n
+    # cfg.algorithm.curriculum.freq = int(cfg.algorithm.curriculum.complete_handover*cfg.algorithm.learn.total_timesteps/n)
     cfg.algorithm.curriculum.freq = int(cfg.algorithm.curriculum.complete_handover*cfg.algorithm.learn.total_timesteps/n)
     
     freq = cfg.algorithm.curriculum.freq#percentage of training used up for handover
@@ -47,8 +48,6 @@ def main(cfg: DictConfig):
     print('# Curriculum steps: ', colored(f'{n}','green'))
     print('Curriculum:', colored(f'{np.arange(max_horizon, -1, -max_horizon // n)}','green'))
     
-    model_cfg = OmegaConf.to_container(cfg.algorithm.model)
-
     def linear_schedule(initial_value: float) -> Callable[[float], float]:
         """
         Linear learning rate schedule.
@@ -71,7 +70,7 @@ def main(cfg: DictConfig):
     model = get_tbc_algorithm(SAC)(
         curr_freq=freq,
         env=env,
-        # learning_rate=linear_schedule(0.0005),
+        learning_rate=linear_schedule(0.0005),
         **cfg.algorithm.model,
         policy_kwargs=dict(
             guide_policy=Guide_policy,
@@ -83,7 +82,6 @@ def main(cfg: DictConfig):
     
     # Set new logger
     tmp_path = cfg.dir
-    # set up logger
     new_logger = configure(tmp_path, ["stdout", "csv", "tensorboard"])
     model.set_logger(new_logger)
 
