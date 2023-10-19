@@ -18,7 +18,7 @@ from stable_baselines3.common.logger import configure
 
 
 
-@hydra.main(version_base=None, config_path="/hpcwork/thes1499/10_8/robosuite/robosuite/main/config/", config_name="main")
+@hydra.main(version_base=None, config_path="/work/thes1499/19_10/robosuite/robosuite/main/config/", config_name="main")
 def main(cfg: DictConfig):
 
     run = wandb.init(
@@ -46,17 +46,32 @@ def main(cfg: DictConfig):
     print('Complete handover in', colored(f'{int(freq*n)}', 'green'), ' time steps with freq:', colored(f'{int(freq)}', 'yellow'))
     print('# Curriculum steps: ', colored(f'{n}','green'))
     print('Curriculum:', colored(f'{np.arange(max_horizon, -1, -max_horizon // n)}','green'))
+    
+    model_cfg = OmegaConf.to_container(cfg.algorithm.model)
 
-# Set new logger
-    tmp_path = cfg.dir
-    # set up logger
-    new_logger = configure(tmp_path, ["stdout", "csv", "tensorboard"])
+    def linear_schedule(initial_value: float) -> Callable[[float], float]:
+        """
+        Linear learning rate schedule.
 
-    model.set_logger(new_logger)
+        :param initial_value: Initial learning rate.
+        :return: schedule that computes
+        current learning rate depending on remaining progress
+        """
+        def func(progress_remaining: float) -> float:
+            """
+            Progress will decrease from 1 (beginning) to 0.
+
+            :param progress_remaining:
+            :return: current learning rate
+            """
+            return progress_remaining * initial_value
+
+        return func
 
     model = get_tbc_algorithm(SAC)(
         curr_freq=freq,
         env=env,
+        # learning_rate=linear_schedule(0.0005),
         **cfg.algorithm.model,
         policy_kwargs=dict(
             guide_policy=Guide_policy,
@@ -70,7 +85,6 @@ def main(cfg: DictConfig):
     tmp_path = cfg.dir
     # set up logger
     new_logger = configure(tmp_path, ["stdout", "csv", "tensorboard"])
-
     model.set_logger(new_logger)
 
     callbacks = [PerformanceLog(eval_env=env, **cfg.algorithm.eval,cfg=cfg)]
