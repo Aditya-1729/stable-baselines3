@@ -303,7 +303,7 @@ class PerformanceLog(EvalCallback):
 
             if mean_reward > self.best_mean_reward:
             #Adding condition on saving the model as per the success rate
-                if self.num_timesteps>100000 and 4.85<=mean_ep_force<=5.15 and ep_total_via_points==8:
+                if self.num_timesteps>100000 and 4.95<=mean_ep_force<=5.05 and ep_total_via_points==8:
                     if self.verbose >= 1:
                         print("New best mean reward!")
                     if self.best_model_save_path is not None:

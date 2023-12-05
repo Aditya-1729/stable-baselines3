@@ -12,7 +12,7 @@ from Callbacks.test import PerformanceLog, Training_info
 from Callbacks.test import PerformanceLog, Training_info
 import wandb
 from stable_baselines3.common.logger import configure
-
+from typing import Callable
 
 @hydra.main(version_base=None, config_path="/work/thes1499/DR_19_10/robosuite/robosuite/main/config/", config_name="main")
 def main(cfg: DictConfig):
@@ -25,7 +25,24 @@ def main(cfg: DictConfig):
             monitor_gym=False,  # auto-upload the videos of agents playing the game
             save_code=False,  # optional
         )
+    def linear_schedule(initial_value: float) -> Callable[[float], float]:
+        """
+        Linear learning rate schedule.
 
+        :param initial_value: Initial learning rate.
+        :return: schedule that computes
+        current learning rate depending on remaining progress
+        """
+        def func(progress_remaining: float) -> float:
+            """
+            Progress will decrease from 1 (beginning) to 0.
+
+            :param progress_remaining:
+            :return: current learning rate
+            """
+            return progress_remaining * initial_value
+
+        return func
 
     env=ResidualWrapper(suite.make(env_name=cfg.env.name,
                             **cfg.env.specs,
@@ -33,7 +50,7 @@ def main(cfg: DictConfig):
                                 cfg.task_config),
                             controller_configs=OmegaConf.to_container(cfg.controller)))    
 
-    model = ResidualSAC(env=env,**cfg.algorithm.model)    
+    model = ResidualSAC(env=env,learning_rate=linear_schedule(0.001),**cfg.algorithm.model)    
     
     # Set new logger
     tmp_path = cfg.dir
