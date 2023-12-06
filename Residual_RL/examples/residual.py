@@ -14,7 +14,7 @@ import wandb
 from stable_baselines3.common.logger import configure
 
 
-@hydra.main(version_base=None, config_path="/work/thes1499/DR_19_10/robosuite/robosuite/main/config/", config_name="main")
+@hydra.main(version_base=None, config_path="/home/ep652816/grinding_robot/robosuite/robosuite/main/config/", config_name="main")
 def main(cfg: DictConfig):
     if cfg.use_wandb:
         run = wandb.init(

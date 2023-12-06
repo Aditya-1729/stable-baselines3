@@ -18,6 +18,7 @@ module load cuDNN/8.6.0.163-CUDA-11.8.0
 export CONDA_ROOT=$HOME/miniconda3
 source $CONDA_ROOT/etc/profile.d/conda.sh
 export PATH="$CONDA_ROOT/bin:$PATH"
+export WANDB_API_KEY_HOME=c924554a59deb477741e39e68e891740d8a391df
 
 conda activate robosuite
 
