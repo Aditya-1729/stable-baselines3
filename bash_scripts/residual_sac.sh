@@ -34,4 +34,4 @@ export MUJOCO_GL='disabled'
 
 cd /home/ep652816/grinding_robot
 
-python /home/ep652816/grinding_robot/robosuite/stable-baselines3/Residual_RL/examples/residual.py algorithm=sac_residual_ep task_config=force_control_new_reward controller.agent_config=residual_2 experiment=new-reward-residual_ec3 seed=37
+python /home/ep652816/grinding_robot/robosuite/stable-baselines3/Residual_RL/examples/residual.py algorithm=sac_residual_ep task_config=force_control_new_reward controller.agent_config=residual_2 experiment=new-reward-residual_ec2 seed=37
