@@ -157,7 +157,7 @@ def eval_policy(
                 info = infos[i]
                 episode_starts[i] = done
                 episode_force.append(info['force'])
-                episode_deviation.append(info['deviation'])
+                #episode_deviation.append(info['deviation'])
                 episode_via_points.append(info['nwipedmarkers'])
                 table_height = info['table_height']
                 if callback is not None:
