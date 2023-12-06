@@ -6,7 +6,7 @@
 #SBATCH --nodes=1 # request one nodes
 #SBATCH --cpus-per-task=8  # ask for 2 cpus per task
 #SBATCH --mem=64G
-#SBATCH --time=00:05:00
+#SBATCH --time=17:00:00
 #SBATCH --gres=gpu:volta:1
 
 # request one gpu per node 
@@ -33,4 +33,4 @@ export MUJOCO_GL='disabled'
 
 cd /home/ep652816/grinding_robot
 
-python robosuite/stable-baselines3/Residual_RL/examples/residual.py algorithm=sac_residual task_config=force_control_new_reward controller.agent_config=residual_2 experiment=new-reward-debug seed=37
+python /home/ep652816/grinding_robot/robosuite/stable-baselines3/Residual_RL/examples/residual.py algorithm=sac_residual_ep task_config=force_control_new_reward controller.agent_config=residual_2 experiment=new-reward-residual seed=37

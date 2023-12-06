@@ -219,6 +219,7 @@ class ResidualSAC(SAC):
 
         ent_coef_losses, ent_coefs = [], []
         actor_losses, critic_losses = [], []
+        entropies = []
 
         ent_value=0
 
@@ -263,6 +264,7 @@ class ResidualSAC(SAC):
                 # add entropy term
                 ent_value = next_log_prob.reshape(-1, 1)
                 next_q_values = next_q_values - ent_coef * next_log_prob.reshape(-1, 1)
+                entropies.append(next_log_prob.reshape(-1, 1).cpu().mean())
                 # td error + entropy term
                 target_q_values = replay_data.rewards + (1 - replay_data.dones) * self.gamma * next_q_values
 
@@ -307,7 +309,7 @@ class ResidualSAC(SAC):
         self.logger.record("train/ent_coef", np.mean(ent_coefs))
         self.logger.record("train/actor_loss", np.mean(actor_losses))
         self.logger.record("train/critic_loss", np.mean(critic_losses))
-        #self.logger.record("train/ent_value", np.linalg.norm(ent_value)) # added to log entropy
+        self.logger.record("train/entropy", np.mean(entropies))
         if len(ent_coef_losses) > 0:
             self.logger.record("train/ent_coef_loss", np.mean(ent_coef_losses))
     
