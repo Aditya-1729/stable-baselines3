@@ -11,7 +11,7 @@ import hydra
 
 
 
-@hydra.main(version_base=None, config_path="/work/thes1499/7_10/10_8/robosuite/robosuite/main/config/", config_name="main")
+@hydra.main(version_base=None, config_path="/work/thes1499/DR_19_10/robosuite/robosuite/main/config/", config_name="main")
 def main(cfg: DictConfig):
 
     run = wandb.init(

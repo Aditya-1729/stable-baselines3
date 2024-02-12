@@ -1,14 +1,14 @@
 #!/usr/local_rwth/bin/zsh
 
-#SBATCH --job-name=Res_37
+#SBATCH --job-name=lr_ResDR
 #SBATCH --output=/work/thes1499/DR_19_10/robosuite/stable-baselines3/task_out/task_out.%J.out
 #SBATCH --error=/work/thes1499/DR_19_10/robosuite/stable-baselines3/error_task/error_task_out.%J.out
 #SBATCH --nodes=1 # request one nodes
 #SBATCH --cpus-per-task=8  # ask for 2 cpus per task
 #SBATCH --mem=64G
-#SBATCH --account=rwth1458
-#SBATCH --time=17:00:00
-# SBATCH --gres=gpu:volta:1
+#SBATCH --account=rwth1272
+#SBATCH --time=30:00:00
+#SBATCH --gres=gpu:volta:1
 
 # request one gpu per node 
 
@@ -32,4 +32,4 @@ export MUJOCO_GL='disabled'
 #export DISPLAY=guilinuxbox:0.0
 
 
-python /work/thes1499/DR_19_10/robosuite/stable-baselines3/Residual_RL/examples/residual.py algorithm=sac_residual experiment=sac_residual seed=37
+python /work/thes1499/DR_19_10/robosuite/stable-baselines3/Residual_RL/examples/lr_residual.py algorithm=lr_sac_residual task_config=DR_force_control_4 controller.agent_config=residual_2 experiment=sac_lr_residual_DR_s9 seed=9 algorithm.learn.total_timesteps=5000000

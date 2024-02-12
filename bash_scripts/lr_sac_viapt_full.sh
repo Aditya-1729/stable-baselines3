@@ -1,16 +1,15 @@
 #!/usr/local_rwth/bin/zsh
 
-#SBATCH --job-name=Res_37
+#SBATCH --job-name=DR_lrSAC_5
 #SBATCH --output=/work/thes1499/DR_19_10/robosuite/stable-baselines3/task_out/task_out.%J.out
 #SBATCH --error=/work/thes1499/DR_19_10/robosuite/stable-baselines3/error_task/error_task_out.%J.out
 #SBATCH --nodes=1 # request one nodes
-#SBATCH --cpus-per-task=8  # ask for 2 cpus per task
+#SBATCH --cpus-per-task=16  # ask for 2 cpus per task
 #SBATCH --mem=64G
-#SBATCH --account=rwth1458
-#SBATCH --time=17:00:00
-# SBATCH --gres=gpu:volta:1
-
+#SBATCH --account=rwth1272
+#SBATCH --time=20:00:00
 # request one gpu per node 
+#SBATCH --gres=gpu:volta:1
 
 
 export CONDA_ROOT=$HOME/miniconda3
@@ -32,4 +31,4 @@ export MUJOCO_GL='disabled'
 #export DISPLAY=guilinuxbox:0.0
 
 
-python /work/thes1499/DR_19_10/robosuite/stable-baselines3/Residual_RL/examples/residual.py algorithm=sac_residual experiment=sac_residual seed=37
+python /work/thes1499/DR_19_10/robosuite/stable-baselines3/lrs_sac_hydra.py algorithm=lr_sac task_config.reward_mode=2 controller.agent_config=0 seed=5

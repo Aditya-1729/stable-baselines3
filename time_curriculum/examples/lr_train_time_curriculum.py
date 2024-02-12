@@ -16,7 +16,6 @@ from wandb.integration.sb3 import WandbCallback
 from typing import Callable
 from stable_baselines3.common.logger import configure
 
-
 @hydra.main(version_base=None, config_path="/work/thes1499/DR_19_10/robosuite/robosuite/main/config/", config_name="main")
 def main(cfg: DictConfig):
 
@@ -69,6 +68,7 @@ def main(cfg: DictConfig):
     model = get_tbc_algorithm(SAC)(
         curr_freq=freq,
         env=env,
+        learning_rate=linear_schedule(0.0005),
         **cfg.algorithm.model,
         policy_kwargs=dict(
             guide_policy=Guide_policy,
