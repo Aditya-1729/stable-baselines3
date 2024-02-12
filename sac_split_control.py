@@ -1,6 +1,6 @@
 import gymnasium as gym
 import robosuite as suite
-from robosuite.wrappers import Via_points_full
+from robosuite.wrappers import SplitWrapper
 from stable_baselines3 import SAC
 from stable_baselines3.common.logger import configure
 from robosuite.controllers import load_controller_config
@@ -11,7 +11,7 @@ import hydra
 
 
 
-@hydra.main(version_base=None, config_path="/work/thes1499/DR_19_10/robosuite/robosuite/main/config/", config_name="main")
+@hydra.main(version_base=None, config_path="/work/thes1499/7_10/10_8/robosuite/robosuite/main/config/", config_name="main")
 def main(cfg: DictConfig):
 
     run = wandb.init(
@@ -23,7 +23,7 @@ def main(cfg: DictConfig):
         save_code=False,  # optional
         ) 
 
-    env = Via_points_full(suite.make(env_name=cfg.env.name,
+    env = SplitWrapper(suite.make(env_name=cfg.env.name,
                                 **cfg.env.specs,
                                 task_config=OmegaConf.to_container(
                                     cfg.task_config),

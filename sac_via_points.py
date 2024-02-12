@@ -2,7 +2,7 @@ import gymnasium as gym
 import robosuite as suite
 from robosuite.wrappers import RL_agent_2
 from robosuite.wrappers import Via_points_sweep
-from robosuite.wrappers import Via_points_full
+from robosuite.wrappers import SplitWrapper
 from robosuite.wrappers import Via_points
 from stable_baselines3 import SAC
 from stable_baselines3.common.logger import configure
@@ -29,7 +29,7 @@ run = wandb.init(
     save_code=False,  # optional
 )
 
-env = Via_points_full(suite.make(env_name=cfg.env.name,
+env = SplitWrapper(suite.make(env_name=cfg.env.name,
                             **cfg.env.specs,
                             task_config=OmegaConf.to_container(
                                 cfg.task_config),

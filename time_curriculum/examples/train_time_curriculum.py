@@ -17,7 +17,8 @@ from typing import Callable
 from stable_baselines3.common.logger import configure
 
 
-@hydra.main(version_base=None, config_path="/work/thes1499/DR_19_10/robosuite/robosuite/main/config/", config_name="main")
+
+@hydra.main(version_base=None, config_path="/work/thes1499/19_10/robosuite/robosuite/main/config/", config_name="main")
 def main(cfg: DictConfig):
 
     run = wandb.init(
@@ -34,10 +35,11 @@ def main(cfg: DictConfig):
                                 cfg.task_config),
                             controller_configs=OmegaConf.to_container(cfg.controller)))    
     # guide_policy = SAC.load("/media/aditya/OS/Users/Aditya/Documents/Uni_Studies/Thesis/master_thesis/saved_models/4N.zip").policy
-    n = 10
+    n = cfg.algorithm.curriculum.steps
     max_horizon = env.env.horizon
 
     # freq = cfg.algorithm.curriculum.complete_handover*cfg.algorithm.learn.total_timesteps/n
+    # cfg.algorithm.curriculum.freq = int(cfg.algorithm.curriculum.complete_handover*cfg.algorithm.learn.total_timesteps/n)
     cfg.algorithm.curriculum.freq = int(cfg.algorithm.curriculum.complete_handover*cfg.algorithm.learn.total_timesteps/n)
     
     freq = cfg.algorithm.curriculum.freq#percentage of training used up for handover
@@ -46,7 +48,6 @@ def main(cfg: DictConfig):
     print('# Curriculum steps: ', colored(f'{n}','green'))
     print('Curriculum:', colored(f'{np.arange(max_horizon, -1, -max_horizon // n)}','green'))
     
-
     def linear_schedule(initial_value: float) -> Callable[[float], float]:
         """
         Linear learning rate schedule.
@@ -69,6 +70,7 @@ def main(cfg: DictConfig):
     model = get_tbc_algorithm(SAC)(
         curr_freq=freq,
         env=env,
+        learning_rate=linear_schedule(0.0005),
         **cfg.algorithm.model,
         policy_kwargs=dict(
             guide_policy=Guide_policy,
@@ -80,7 +82,6 @@ def main(cfg: DictConfig):
     
     # Set new logger
     tmp_path = cfg.dir
-    # set up logger
     new_logger = configure(tmp_path, ["stdout", "csv", "tensorboard"])
     model.set_logger(new_logger)
 

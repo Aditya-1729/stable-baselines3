@@ -11,13 +11,12 @@ import time
 from hydra import initialize_config_dir, compose
 import os
 
-# scriptDir = os.path.dirname(os.path.realpath(__file__))
-
-# initialize_config_dir(version_base=None, \
-# config_dir=os.path.abspath('/media/aditya/OS/Users/Aditya/Documents/Uni_Studies/Thesis/master_thesis/1_8/robosuite/stable-baselines3/guide_policy/'))
-# cfg = compose(config_name="config")
-
 class HorizonUpdate(BaseCallback):
+    """
+    This class updates the horizon of the policy on every step.
+
+    :param policy: The policy to update.
+    """
     def __init__(self, policy, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.policy = policy
@@ -27,34 +26,17 @@ class HorizonUpdate(BaseCallback):
         self.policy.update_horizon()
         return True
 
-
-class Guide_policy:
-    def __init__(self):
-        # self.env=env
-        
-        self.position_limits=0.02
-        self.dist_th=0.02
-        self.indent= 0.01183  
-
-    def predict(self,env):
-        self.action= np.zeros(env.action_space.shape)
-        eef_pos = env.sim.data.site_xpos[env.robots[0].eef_site_id]
-        self.action[:12] = env.robots[0].controller.guide_policy_gains
-        # self.action[:12]=np.array((7,7,7,7,7,7,200,200,200,200,200,200))
-        self.action[12:14] = env.site_pos[:2]-eef_pos[:2]
-        self.action[-1] = env.site_pos[-1] - self.indent - eef_pos[-1]
-        # delta = eef_pos - env.site_pos
-        # dist = np.linalg.norm(delta)
-        # print(f"dist:{dist} site: {self.site}")
-
-        return self.action
-
 def get_tbc_policy(ExplorationPolicy: BasePolicy):
+    """
+    This function extends a policy class to include the Time Based Curriculum.
+    :param ExplorationPolicy: The policy to be extended.
+    :return: A new policy class that includes the Time Based Curriculum.
+    """
+
     class TBCPolicy(ExplorationPolicy):
         def __init__(
             self,
             *args,
-            guide_policy = None,
             max_horizon: int = 0,
             horizons: List[int] = [0],
             strategy: str = "time",
@@ -63,7 +45,6 @@ def get_tbc_policy(ExplorationPolicy: BasePolicy):
             **kwargs,
         ) -> None:
             super().__init__(*args, **kwargs)
-            self.guide_policy = guide_policy
             assert strategy in ["curriculum", "time"], f"strategy: '{strategy}' must be 'curriculum' or 'random'"
             self.strategy = strategy
             self.horizon_step= 0
@@ -75,13 +56,14 @@ def get_tbc_policy(ExplorationPolicy: BasePolicy):
             # self.env = env 
         @property
         def horizon(self):
-            # self.guide_horizon= self.horizons[self.horizon_step]
             return self.horizons[self.horizon_step]
     
 
         def update_horizon(self) -> None:
             """
             Update the horizon based on the current strategy.
+            horizon_step is the index of the current horizon in the list of horizons.
+            guide_horizon is the horizon 'rolled in' by the guide policy .
             """
             if self.strategy == "time":
                 self.horizon_step += 1
@@ -93,30 +75,14 @@ def get_tbc_policy(ExplorationPolicy: BasePolicy):
                 # print(f"guide_horizon_prop:{self.horizon()}")
                 self.lambda_ = np.clip((self.max_horizon-self.guide_horizon)/self.max_horizon, a_max=1, a_min=0)
 
-        # def predict(
-        #     self,
-        #     observation: Union[np.ndarray, Dict[str, np.ndarray]],
-        #     timesteps: np.ndarray,
-        #     state: Optional[Tuple[np.ndarray, ...]] = None,
-        #     episode_start: Optional[np.ndarray] = None,
-        #     deterministic: bool = False,
-            
-        # ) -> Tuple[np.ndarray, Optional[Tuple[np.ndarray, ...]]]:
-    
-    
-        #     # print(f"lambda:{self.lambda_}")
-        #     # env.envs[0].env.lambda_ = self.lambda_
-        #     action, state_ = super().predict(
-        #             observation, state, episode_start, deterministic
-        #         )
-        #     # action = HybridPolicy(action, self.guide_policy, self.lambda_, env).predict()
-
-        #     return action, state_
-
     return TBCPolicy
 
 
 def get_tbc_algorithm(Algorithm: BaseAlgorithm):
+    """
+    :param Algorithm: The algorithm to be extended.
+    :return: A new algorithm class that includes the TBC curriculum.
+    """
     class TBCAlgorithm(Algorithm):
         def __init__(self, curr_freq, policy, *args, **kwargs):
             if isinstance(policy, str):
@@ -127,7 +93,6 @@ def get_tbc_algorithm(Algorithm: BaseAlgorithm):
             self.curr_freq=curr_freq
             kwargs["learning_starts"] = 0
             super().__init__(policy, *args, **kwargs)
-            # self.guide_policy=Guide_policy(env=self.env)
 
         def _init_callback(
             self,
@@ -164,7 +129,7 @@ def get_tbc_algorithm(Algorithm: BaseAlgorithm):
             """
             Get the policy action from an observation (and optional hidden state).
             Includes sugar-coating to handle different observations (e.g. normalizing images).
-
+            Stores environment lambda_ (used later in the wrapper) from the policy object.
             :param observation: the input observation
             :param state: The last hidden states (can be None, used in recurrent policies)
             :param episode_start: The last masks (can be None, used in recurrent policies)
@@ -202,34 +167,3 @@ def get_tbc_algorithm(Algorithm: BaseAlgorithm):
             
             
     return TBCAlgorithm
-
-
-class HybridPolicy:
-    def __init__(self,action,guide_policy,lambda_,env):
-        self.action=action
-        self.env= env.envs[0].env
-        self.output_max = self.env.robots[0].controller.output_max
-        self.output_min = self.env.robots[0].controller.output_min
-        self.input_max = self.env.robots[0].controller.input_max
-        self.input_min = self.env.robots[0].controller.input_min
-        self.action_scale = abs(self.output_max - self.output_min) / abs(self.input_max - self.input_min)
-        self.action_output_transform = (self.output_max + self.output_min) / 2.0
-        self.action_input_transform = (self.input_max + self.input_min) / 2.0
-        self.guide_policy=guide_policy
-        self.lambda_= lambda_
-        self.env.lambda_ = lambda_
-
-    def rescale_agent_delta(self) -> np.ndarray:
-        action = np.clip(self.action[0][-3:], self.input_min, self.input_max)
-        self.transformed_action = (action - self.action_input_transform) * self.action_scale + self.action_output_transform
-        return self.transformed_action
-
-    def predict (self):
-        eef_pos = self.env.sim.data.site_xpos[self.env.robots[0].eef_site_id]
-        self.action[0][-3:] = self.rescale_agent_delta()
-        guide_action = self.guide_policy.predict(self.env)[True]
-        # print(guide_action[0][-3:])
-        self.final_action = (1-self.lambda_)*guide_action + self.lambda_*self.action
-        self.final_action[0][-3:] = eef_pos + np.clip(guide_action[0][-3:] + self.action[0][-3:], a_min=np.ones(3) * (-self.env.position_limits),\
-                            a_max=np.ones(3) * (self.env.position_limits))   
-        return self.final_action 

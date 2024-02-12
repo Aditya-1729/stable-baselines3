@@ -102,9 +102,9 @@ class Actor(BasePolicy):
             self.mu = nn.Linear(last_layer_dim, action_dim)
             self.log_std = nn.Linear(last_layer_dim, action_dim)  # type: ignore[assignment]
 #Comment this out for residual RL
-        with th.no_grad():
-            self.mu.weight*=0.001
-            self.mu.bias*=0.001
+        # with th.no_grad():
+            # self.mu.weight*=0.001
+            # self.mu.bias*=0.001
     def _get_constructor_parameters(self) -> Dict[str, Any]:
         data = super()._get_constructor_parameters()
 
